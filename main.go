@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"google.golang.org/grpc"
 	"io/ioutil"
+	"kr_server/http_server"
 	"log"
 	"math/big"
 	"math/rand"
@@ -176,6 +177,9 @@ func (s *CAServer)IssueCert(ctx context.Context, in *auth.IssueCertRequest)(*aut
 }
 
 func main() {
+	// start http server
+	go http_server.HttpServer()
+	// start grpc server
 	lis, err := net.Listen("tcp", ":9999")
 	if err != nil {
 		log.Fatal("failed to listen:%v", ":9999")

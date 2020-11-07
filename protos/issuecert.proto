@@ -1,0 +1,13 @@
+syntax = "proto3";
+option go_package = "generate_code/auth";
+package auth;
+service CAServer {
+  rpc IssueCert(IssueCertRequest)returns(IssueCertResponse){}
+}
+
+message IssueCertRequest {
+  string public_key = 1;
+}
+message IssueCertResponse {
+  string cert = 1;
+}

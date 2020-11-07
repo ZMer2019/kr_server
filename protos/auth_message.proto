@@ -1,0 +1,27 @@
+syntax = "proto3";
+option go_package = "generate_code/auth";
+package auth;
+message DeviceInfo {
+  string SN           = 1;
+  string hostname     = 2;
+  string OS           = 3;
+  string arch         = 4;
+  string version      = 5;
+  string bios_id      = 6;
+}
+
+message Cookie {
+  string name         = 1;
+  string value        = 2;
+  string domain       = 3;
+  string path         = 4;
+  string expire       = 5;
+  int64 maxAge        = 6;
+  bool httpOnly       = 7;
+  bool secure         = 8;
+}
+
+message AgentAuthInfo{
+  DeviceInfo info         = 1;
+  repeated Cookie cookies = 2;
+}

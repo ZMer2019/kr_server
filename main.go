@@ -136,6 +136,7 @@ func GenerateCert(rootCert *x509.Certificate,
 		CommonName: username,
 		IpAddress: "",
 		ExtraInfo: "test",
+		DNSName: "test.oa.com",
 	}
 	clientPub, err := getPublicKey(clientPublickey)
 	if err != nil {

@@ -6,21 +6,23 @@ import (
 	"fmt"
 )
 
+
 func Verify(root_cert, target_cert string)bool{
+	fmt.Println("\nroot cert:", root_cert)
 	roots := x509.NewCertPool()
 	ok := roots.AppendCertsFromPEM([]byte(root_cert))
 	if !ok {
-		fmt.Errorf("parse root certificate error\n")
+		fmt.Println("parse root certificate error\n")
 		return ok
 	}
 	block, _ := pem.Decode([]byte(target_cert))
 	if block == nil {
-		fmt.Errorf("parse target certificate error\n")
+		fmt.Println("parse target certificate error\n")
 		return false
 	}
 	cert, err := x509.ParseCertificate(block.Bytes)
 	if err != nil {
-		fmt.Errorf("failed to parse certificate:%s\n", err.Error())
+		fmt.Println("failed to parse certificate:%s\n", err.Error())
 		return false
 	}
 	opts := x509.VerifyOptions{

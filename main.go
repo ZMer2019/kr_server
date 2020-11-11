@@ -28,6 +28,7 @@ func parseCert(path string)(*x509.Certificate, error){
 		fmt.Println(err.Error())
 		return nil, err
 	}
+	http_server.SetRootCert(string(buf))
 	p := &pem.Block{}
 	p, buf = pem.Decode(buf)
 	return x509.ParseCertificate(p.Bytes)
@@ -38,6 +39,7 @@ func ParseKey(path string)(*rsa.PrivateKey, error){
 		fmt.Println(err.Error())
 		return nil, err
 	}
+	http_server.SetRootKey(string(buf))
 	p, buf := pem.Decode(buf)
 	return x509.ParsePKCS1PrivateKey(p.Bytes)
 }
@@ -124,7 +126,7 @@ func getPublicKey(publicKey string)(*rsa.PublicKey, error){
 }
 func GenerateCert(rootCert *x509.Certificate,
 	rootKey *rsa.PrivateKey,
-	username, clientPublickey string, caType int32)(string, error){
+	username, clientPublicKey string, caType int32)(string, error){
 	certInfo := CertInformation{
 		Country: []string{"CN"},
 		Organization: []string{"test"},
@@ -138,7 +140,7 @@ func GenerateCert(rootCert *x509.Certificate,
 		ExtraInfo: "test",
 		DNSName: "test.oa.com",
 	}
-	clientPub, err := getPublicKey(clientPublickey)
+	clientPub, err := getPublicKey(clientPublicKey)
 	if err != nil {
 		return "", err
 	}
@@ -161,6 +163,7 @@ type CAServer struct{
 func (s *CAServer)IssueCert(ctx context.Context, in *auth.IssueCertRequest)(*auth.IssueCertResponse, error){
 	resp := new(auth.IssueCertResponse)
 	fmt.Println(in.PublicKey)
+	fmt.Println("public Key:===========\n", in.PublicKey)
 	rootCert, rootKey, err := parse("./root.crt","./root.key")
 	if err != nil{
 		fmt.Println(err.Error())
@@ -174,6 +177,17 @@ func (s *CAServer)IssueCert(ctx context.Context, in *auth.IssueCertRequest)(*aut
 		resp.Cert = "bad"
 	}
 	resp.Cert = cert
+
+	block1, _ := pem.Decode([]byte(cert))
+	var cert1* x509.Certificate
+	cert1, _ = x509.ParseCertificate(block1.Bytes)
+	rsaPublicKey := cert1.PublicKey.(*rsa.PublicKey)
+	bytePublicKey,_ := x509.MarshalPKIXPublicKey(rsaPublicKey)
+	pemPub := pem.Block{
+		Type: "RSA PUBLIC KEY",
+		Bytes: bytePublicKey,
+	}
+	fmt.Println("2222 public key:\n", string(pem.EncodeToMemory(&pemPub)))
 	return resp, nil
 }
 

@@ -37,10 +37,9 @@ type ECDSASignature struct {
 	R, S *big.Int
 }
 func AuthHandler(w http.ResponseWriter,r *http.Request){
-	signBase64Str := r.URL.Query().Get("sign")
-	fmt.Println("signBase64Str\n", signBase64Str);
-	signByte, _ := base64.StdEncoding.DecodeString(signBase64Str)
-	fmt.Println("signatureBase64:\n",string(signByte))
+	signature := r.URL.Query().Get("sign")
+	fmt.Println("signBase64Str\n", signature);
+	signByte, _ := base64.StdEncoding.DecodeString(signature)
 	certBase64Str := r.URL.Query().Get("cert")
 	certByte, _ := base64.StdEncoding.DecodeString(certBase64Str)
 	fmt.Println(string(certByte))
@@ -66,14 +65,10 @@ func AuthHandler(w http.ResponseWriter,r *http.Request){
 	cert, _ = x509.ParseCertificate(block.Bytes)
 	rsaPublicKey := cert.PublicKey.(*rsa.PublicKey)
 
-
-	signature, _ := base64.StdEncoding.DecodeString(string(signByte))
-
-
 	h := sha256.New()
 	h.Write(strByte)
 	msgHashSum := h.Sum(nil)
-	err = rsa.VerifyPSS(rsaPublicKey,crypto.SHA256,msgHashSum, signature, nil)
+	err = rsa.VerifyPSS(rsaPublicKey,crypto.SHA256,msgHashSum, signByte, nil)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
